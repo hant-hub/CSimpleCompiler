@@ -1,0 +1,38 @@
+[
+{
+	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
+	"file": "sb_build.c",
+	"arguments": ["cc", "-DSB_IMPL", "sb_build.c", "-o", "/./sb_build"]
+},
+{
+	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
+	"file": "sb.h",
+	"arguments": ["cc", "-DSB_IMPL", "sb_build.c", "-o", "/./sb_build"]
+},
+{
+	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
+	"file": "src/main.c",
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+},
+{
+	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
+	"file": "src/util.c",
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+},
+{
+	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
+	"file": "src/symboltable.c",
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+},
+{
+	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
+	"file": "src/tokenizer.c",
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+},
+{
+	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
+	"file": "src/stringstore.c",
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+},
+
+]
