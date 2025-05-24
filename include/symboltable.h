@@ -44,11 +44,23 @@ typedef struct HashTable {
 } HashTable;
 
 typedef struct SymbolTable {
+    Allocator m;
+    StringStore* s;
+
+    HashTable* tables;
+    u64 size;
+    u64 cap;
+
 } SymbolTable;
 
 
 u64 PushText(HashTable* h, char* text, u64 length);
 i64 InsertEntry(HashTable* h, u64 key, SymbolEntry e);
 i64 GetEntry(HashTable* h, u64 key);
+
+void PushScope(SymbolTable* s);
+void PopScope(SymbolTable* s);
+void PushSymbol(SymbolTable* s, u64 key, SymbolEntry e);
+SymbolEntry* GetSymbol(SymbolTable* s, u64 key);
 
 #endif

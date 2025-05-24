@@ -4,6 +4,7 @@
 
 int main(int argc, char* argv[]) {
     sb_BUILD(argc, argv) {
+        sb_chdir_exe();
         sb_target_dir("build/");
         sb_mkdir("build");
         sb_EXEC() {
@@ -18,6 +19,7 @@ int main(int argc, char* argv[]) {
             sb_add_file("src/symboltable.c");
             sb_add_file("src/tokenizer.c");
             sb_add_file("src/stringstore.c");
+            sb_add_file("src/parser.c");
 
             sb_export_command();
         }

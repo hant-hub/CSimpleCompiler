@@ -32,6 +32,7 @@ static u64 PushText(StringStore* h, char* text, u64 length) {
 }
 
 static void Resize(StringStore* h) {
+    printf("Resize!\n");
     u64* oldkeys = h->keys;
     u64 oldsize = h->kcap;
 
@@ -48,8 +49,8 @@ static void Resize(StringStore* h) {
         if (oldkeys[i] == -1) continue;
 
         char* key = &h->textbuffer[oldkeys[i]];
-        u64 idx = hash(key, strlen(key))  % h->kcap;
 
+        u64 idx = hash(key, strlen(key))  % h->kcap;
         u64 k = oldkeys[i];
 
         for (u32 i = 0; i < h->kcap; i++) {
@@ -57,8 +58,8 @@ static void Resize(StringStore* h) {
                 h->keys[idx] = k;
                 break;
             }
+            idx = (idx + 1) % h->kcap;
         }
-        idx = (idx + 1) & ~h->kcap;
     }
 
     h->m.a(oldsize * sizeof(u64), 0, oldkeys, h->m.ctx);
@@ -88,13 +89,33 @@ i64 AddString(StringStore* h, char* key, u64 length) {
             break;
         }
 
-        idx = (idx + 1) & ~h->kcap;
+        idx = (idx + 1) % h->kcap;
     }
 
-    return idx; 
+    return h->keys[idx]; 
 }
 
 
 char* GetString(StringStore* h, int key) {
     return &h->textbuffer[key];
+}
+
+i64 GetKey(StringStore* h, char* key, u64 len) {
+    i64 idx = hash(key, len) % h->kcap;
+
+    for (u32 i = 0; i < h->kcap; i++) {
+        if (h->keys[idx] == -1) {
+            return -1;
+            break;
+        }
+
+        if (CmpKey(h, idx, key, len)) {
+            return h->keys[idx];
+            break;
+        }
+
+        idx = (idx + 1) % h->kcap;
+    }
+
+    return -1; 
 }

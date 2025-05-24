@@ -12,27 +12,32 @@
 {
 	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
 	"file": "src/main.c",
-	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "src/parser.c", "-o", "build//app"]
 },
 {
 	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
 	"file": "src/util.c",
-	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "src/parser.c", "-o", "build//app"]
 },
 {
 	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
 	"file": "src/symboltable.c",
-	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "src/parser.c", "-o", "build//app"]
 },
 {
 	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
 	"file": "src/tokenizer.c",
-	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "src/parser.c", "-o", "build//app"]
 },
 {
 	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
 	"file": "src/stringstore.c",
-	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "-o", "build//app"]
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "src/parser.c", "-o", "build//app"]
+},
+{
+	"directory": "/home/ehantman/Desktop/repos/CSimpleCompiler",
+	"file": "src/parser.c",
+	"arguments": ["cc", "-Iinclude", "-g", "src/main.c", "src/util.c", "src/symboltable.c", "src/tokenizer.c", "src/stringstore.c", "src/parser.c", "-o", "build//app"]
 },
 
 ]

@@ -79,12 +79,13 @@ i64 InsertEntry(HashTable* h, u64 kidx, SymbolEntry e) {
 
 
 i64 GetEntry(HashTable* h, u64 kidx) {
+    if (kidx == -1) return -1;
     char* key = GetString(h->s, kidx);
     u64 length = strlen(key);
 
     i64 idx = hash(key, length) % h->cap;
     for (u32 i = 0; i < h->cap; i++) {
-        if (h->keys[idx] == -1) {
+        if (h->keys[idx] < 0) {
             idx = -1;
             break;
         }
@@ -96,4 +97,55 @@ i64 GetEntry(HashTable* h, u64 kidx) {
 
 
     return idx;
+}
+
+
+void PushScope(SymbolTable* s) {
+    if (s->size + 1 > s->cap) {
+        u64 oldsize = s->cap;
+        s->cap = s->cap ? s->cap * 2 : 1;
+        s->tables = s->m.a(
+                oldsize * sizeof(HashTable),
+                s->cap * sizeof(HashTable),
+                s->tables,
+                s->m.ctx);
+
+        s->tables[s->size++] = (HashTable) {
+            .m = s->m,
+            .s = s->s,
+        };
+
+    } else {
+
+        s->tables[s->size].size = 0;
+        memset(s->tables[s->size].keys, -1,
+               sizeof(u64) * s->tables[s->size].cap);
+    }
+}
+
+void PopScope(SymbolTable* s) {
+    //clear top level scope
+    //the table is delibrately preserved
+    //to avoid redundant allocations and frees
+
+    s->size--;
+    s->tables[s->size].size = 0;
+    memset(s->tables[s->size].keys, -1,
+            sizeof(u64) * s->tables[s->size].cap);
+
+}
+
+void PushSymbol(SymbolTable* s, u64 key, SymbolEntry e) {
+    InsertEntry(&s->tables[s->size - 1], key, e);
+}
+
+SymbolEntry* GetSymbol(SymbolTable* s, u64 key) {
+    for (u64 i = 0; i < s->size; i++) {
+        u64 idx = s->size - i - 1;
+        i64 r = GetEntry(&s->tables[idx], key);
+        if (r > 0) {
+            return &s->tables[idx].values[r];
+        }
+    }
+    return NULL;
 }

@@ -298,7 +298,7 @@ char* sb_get_cwd() {
 
 
 void sb_exit(int status) {
-   sb_exit(status);
+   exit(status);
 }
 
 
@@ -529,12 +529,11 @@ void sb_build_end() {
             int status;
             while (waitpid(0, &status, 0) > 0) {
                 if (!WIFEXITED(status)) {
-                    sb_printf("Error: %d\n", status);
-                   sb_exit(-1);
-                }
-                if (WEXITSTATUS(status)) {
-                    sb_printf("Nonzero Exit: %d\n", status);
-                   sb_exit(-1);
+                   sb_printf("Error: %d\n", status);
+                   //sb_exit(-1);
+                } else if (WEXITSTATUS(status)) {
+                   sb_printf("Nonzero Exit: %d\n", WEXITSTATUS(status));
+                   //sb_exit(-1);
                 }
 
             }
@@ -568,11 +567,10 @@ void sb_build_end() {
     while (waitpid(0, &status, 0) > 0){
         if (!WIFEXITED(status)) {
             sb_printf("Error: %d\n", status);
-           sb_exit(-1);
-        }
-        if (WEXITSTATUS(status)) {
-            sb_printf("Nonzero Exit: %d\n", status);
-           sb_exit(-1);
+           //sb_exit(-1);
+        } else if (WEXITSTATUS(status)) {
+            sb_printf("Nonzero Exit: %d\n", WEXITSTATUS(status));
+           //sb_exit(-1);
         }
     }
 

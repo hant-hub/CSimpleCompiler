@@ -17,6 +17,7 @@ typedef struct StringStore {
 
 i64 AddString(StringStore* h, char* key, u64 length);
 char* GetString(StringStore* h, int key);
+i64 GetKey(StringStore* h, char* key, u64 len);
 
 
 

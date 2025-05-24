@@ -7,11 +7,23 @@
 
 
 typedef enum TokenType {
-    TOKEN_ID,
+    TOKEN_INVALID = 0, //NULL
+    TOKEN_ID = 128, //room for literals
+
+    TOKEN_INT,
+    TOKEN_FLOAT,
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_FOR,
+
     TOKEN_NUM_INT,
     TOKEN_NUM_FLOAT,
+
+    TOKEN_EQ,
+
     TOKEN_EOF,
 } TokenType;
+
 
 typedef struct Token {
     TokenType t;
@@ -42,5 +54,8 @@ Tokenizer TokenLoadFile(char* file, StringStore* s);
 void TokenUnloadFile(Tokenizer* t);
 
 Token EatToken(Tokenizer* t);
+
+const char* GetTokenTypeName(TokenType t);
+const char* GetTokenName(StringStore* s, Token t);
 
 #endif

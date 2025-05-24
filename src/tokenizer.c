@@ -12,12 +12,41 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
+typedef struct Keyword{
+    u64 key;
+    TokenType t;
+} Keyword;
+
+u32 keywordsInitialized = 0;
+Keyword Keywords[] = {
+    (Keyword){.t = TOKEN_INT},
+    (Keyword){.t = TOKEN_FLOAT},
+    (Keyword){.t = TOKEN_IF},
+    (Keyword){.t = TOKEN_ELSE},
+    (Keyword){.t = TOKEN_FOR},
+};
+
 
 
 Tokenizer TokenLoadFile(char* file, StringStore* s) {
     Tokenizer t = {
         .s = s,
     };
+
+    if (!keywordsInitialized) {
+        keywordsInitialized = 1;
+
+        Keywords[0].key = AddString(s, "int", 3);
+        printf("Keyword: %s\n", GetString(s, Keywords[0].key)); 
+        Keywords[1].key = AddString(s, "float", 5);
+        printf("Keyword: %s\n", GetString(s, Keywords[1].key)); 
+        Keywords[2].key = AddString(s, "if", 2);
+        printf("Keyword: %s\n", GetString(s, Keywords[2].key)); 
+        Keywords[3].key = AddString(s, "else", 4);
+        printf("Keyword: %s\n", GetString(s, Keywords[3].key)); 
+        Keywords[4].key = AddString(s, "for", 3);
+        printf("Keyword: %s\n", GetString(s, Keywords[4].key)); 
+    }
 
     int fd = open(file, O_RDONLY);
     if (!fd) {
@@ -103,15 +132,24 @@ Token EatToken(Tokenizer* t) {
             t->At++;
         }
         u32 len = t->At - start;
-        
+
         i64 idx = AddString(t->s, start, len); 
         if (idx < 0) idx *= -1;
 
-        return (Token) {
+        Token out = (Token) {
             .t = TOKEN_ID,
             .line = t->line,
             .val.i = idx,
         };
+
+        for (u32 i = 0; i < (sizeof(Keywords)/sizeof(Keywords[0])); i++) {
+            if (idx == Keywords[i].key) {
+                out.t = Keywords[i].t;
+                break;
+            }
+        }
+
+        return out;
     }
 
     if (isdigit(t->At[0])) {
@@ -149,6 +187,15 @@ Token EatToken(Tokenizer* t) {
         };
     }
 
+    if (t->At[0] == '=' && t->At[1] == '=') {
+        t->At += 2;
+        return (Token) {
+            .t = TOKEN_EQ,
+            .line = t->line,
+        };
+    }
+
+
     char c = t->At[0];
     t->At++;
 
@@ -157,4 +204,80 @@ Token EatToken(Tokenizer* t) {
         .t = c,
         .line = t->line,
     };
+}
+
+static const char* TokenNames[] = {
+    //TOKEN_INVALID,
+    "TOKEN_ID",
+    "TOKEN_INT",
+    "TOKEN_FLOAT",
+    "TOKEN_IF",
+    "TOKEN_ELSE",
+    "TOKEN_FOR",
+    "TOKEN_NUM_INT",
+    "TOKEN_NUM_FLOAT",
+    "TOKEN_EQ",
+    "TOKEN_EOF",
+};
+
+
+const char* GetTokenTypeName(TokenType t) {
+    static char tmpbuf[2] = {0}; //temporary buffer
+    switch (t) {
+        case TOKEN_INVALID:
+        {
+            return "INVALID";
+        } break;
+        case TOKEN_ID:
+        case TOKEN_INT:
+        case TOKEN_FLOAT:
+        case TOKEN_IF:
+        case TOKEN_ELSE:
+        case TOKEN_FOR:
+        case TOKEN_NUM_INT:
+        case TOKEN_NUM_FLOAT:
+        case TOKEN_EQ:
+        case TOKEN_EOF:
+        {
+            return TokenNames[t - TOKEN_ID];
+        } break;
+        default:
+        {
+            tmpbuf[0] = t;
+            return tmpbuf;
+        } break;
+    }
+}
+
+const char* GetTokenName(StringStore* s, Token t) {
+    static char tmpbuf[2] = {0};
+    if (t.t < 128) {
+        tmpbuf[0] = t.t;
+        return tmpbuf;
+    }
+    switch (t.t) {
+        case TOKEN_ID:
+        case TOKEN_INT:
+        case TOKEN_FLOAT:
+        case TOKEN_IF:
+        case TOKEN_ELSE:
+        case TOKEN_FOR:
+        {
+            return GetString(s, t.val.i);
+        }
+        case TOKEN_NUM_INT:
+        case TOKEN_NUM_FLOAT:
+        {
+            return "NUM";
+        }
+
+        case TOKEN_EQ:
+        {
+            return "EQ";
+        }
+        default:
+        {
+        }
+    }
+    return NULL;
 }
