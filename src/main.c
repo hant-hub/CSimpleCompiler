@@ -18,7 +18,8 @@ int main() {
     printf("%.*s\n", (int)t.size, t.buffer);
     
     ParserState p = (ParserState) {
-        .t = t
+        .t = t,
+        .s = &h,
     };
     
     Parse(&p);
