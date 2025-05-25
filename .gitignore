@@ -3,3 +3,4 @@
 build
 build/**
 sb_build
+compile_commands.json
