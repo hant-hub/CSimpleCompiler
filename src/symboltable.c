@@ -3,7 +3,7 @@
 #include <string.h>
 #include <symboltable.h>
 
-void Resize(HashTable* h) {
+static void Resize(HashTable* h) {
     SymbolEntry* oldvals = h->values; 
     u64* oldkeys = h->keys;
     u64 oldsize = h->cap;
@@ -33,8 +33,8 @@ void Resize(HashTable* h) {
                 h->keys[idx] = k;
                 break;
             }
+            idx = (idx + 1) % h->cap;
         }
-        idx = (idx + 1) & ~h->cap;
     }
 
     h->m.a(oldsize * sizeof(u64), 0, oldkeys, h->m.ctx);
@@ -52,8 +52,6 @@ i64 InsertEntry(HashTable* h, u64 kidx, SymbolEntry e) {
     char* key = GetString(h->s, kidx);
     u64 length = strlen(key);
     
-    //printf("Insert %s\n", key);
-
     //traverse and find slot
     i64 idx = hash(key, length) % h->cap;
 
@@ -62,30 +60,30 @@ i64 InsertEntry(HashTable* h, u64 kidx, SymbolEntry e) {
             h->values[idx] = e;
             h->keys[idx] = kidx;
             h->size++;
-            break;
+            return idx;
         }
 
-        if (h->keys[i] == kidx) {
+        if (h->keys[idx] == kidx) {
             //h->values[idx] = e;
             idx *= -1;
-            break;
+            return idx;
         }
 
-        idx = (idx + 1) & ~h->cap;
+        idx = (idx + 1) % h->cap;
     }
 
-    return idx; 
+    return -1; 
 }
 
 
 i64 GetEntry(HashTable* h, u64 kidx) {
-    if (kidx == -1) return -1;
+    if (kidx == -1 || h->cap == 0) return -1;
     char* key = GetString(h->s, kidx);
     u64 length = strlen(key);
 
     i64 idx = hash(key, length) % h->cap;
     for (u32 i = 0; i < h->cap; i++) {
-        if (h->keys[idx] < 0) {
+        if (h->keys[idx] == -1) {
             idx = -1;
             break;
         }
@@ -93,6 +91,7 @@ i64 GetEntry(HashTable* h, u64 kidx) {
         if (h->keys[idx] == kidx) {
             break;
         }
+        idx = (idx + 1) % h->cap;
     }
 
 
@@ -110,16 +109,19 @@ void PushScope(SymbolTable* s) {
                 s->tables,
                 s->m.ctx);
 
-        s->tables[s->size++] = (HashTable) {
-            .m = s->m,
-            .s = s->s,
-        };
-
+        for (u32 i = 0; i < (s->cap - oldsize); i++) {
+            s->tables[oldsize + i] = (HashTable) {
+                .m = s->m,
+                .s = s->s,
+            };
+        }
+        s->size++;
     } else {
 
         s->tables[s->size].size = 0;
         memset(s->tables[s->size].keys, -1,
                sizeof(u64) * s->tables[s->size].cap);
+        s->size++;
     }
 }
 
@@ -130,20 +132,22 @@ void PopScope(SymbolTable* s) {
 
     s->size--;
     s->tables[s->size].size = 0;
-    memset(s->tables[s->size].keys, -1,
-            sizeof(u64) * s->tables[s->size].cap);
+    memset(s->tables[s->size].keys,
+           -1, 
+           sizeof(u64) * s->tables[s->size].cap);
 
 }
 
-void PushSymbol(SymbolTable* s, u64 key, SymbolEntry e) {
-    InsertEntry(&s->tables[s->size - 1], key, e);
+i64 PushSymbol(SymbolTable* s, u64 key, SymbolEntry e) {
+    printf("Push Symbol: %ld %s\n", s->size - 1, GetString(s->s, key));
+    return InsertEntry(&s->tables[s->size - 1], key, e);
 }
 
 SymbolEntry* GetSymbol(SymbolTable* s, u64 key) {
     for (u64 i = 0; i < s->size; i++) {
         u64 idx = s->size - i - 1;
         i64 r = GetEntry(&s->tables[idx], key);
-        if (r > 0) {
+        if (r >= 0) {
             return &s->tables[idx].values[r];
         }
     }
