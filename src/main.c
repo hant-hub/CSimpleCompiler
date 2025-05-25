@@ -1,4 +1,6 @@
 #include "parser.h"
+#include "stringstore.h"
+#include "symboltable.h"
 #include <stdio.h>
 #include <core.h>
 
@@ -13,6 +15,7 @@ int main() {
         .s = &s,
         .m = GlobalAllocator,
     };
+    PushScope(&h);
 
     Tokenizer t = TokenLoadFile("tests/text.csim", &s);
     printf("%.*s\n", (int)t.size, t.buffer);
@@ -24,7 +27,14 @@ int main() {
     
     Parse(&p);
 
-
+    printf("SymbolTable:\n");
+    for (u32 i = 0; i < h.tables[0].cap; i++) {
+        if (h.tables[0].keys[i] != -1) {
+            printf("\t%s\n", GetString(&s, h.tables[0].keys[i]));
+        } else {
+            printf("\tEmpty\n");
+        }
+    }
 
     TokenUnloadFile(&t);
 

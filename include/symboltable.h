@@ -60,7 +60,7 @@ i64 GetEntry(HashTable* h, u64 key);
 
 void PushScope(SymbolTable* s);
 void PopScope(SymbolTable* s);
-void PushSymbol(SymbolTable* s, u64 key, SymbolEntry e);
+i64 PushSymbol(SymbolTable* s, u64 key, SymbolEntry e);
 SymbolEntry* GetSymbol(SymbolTable* s, u64 key);
 
 #endif

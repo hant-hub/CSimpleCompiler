@@ -1,4 +1,5 @@
 #include "stringstore.h"
+#include "symboltable.h"
 #include "tokenizer.h"
 #include <parser.h>
 #include <stdarg.h>
@@ -22,19 +23,29 @@ static u32 _TokenInSet(Token t, u32 num, ...) {
     return 0;
 }
 
-static u32 _ThrowError(ParserState* p, Token t, TokenType expected, u32 line) {
+static void _TokenThrowError(ParserState* p, Token t, TokenType expected, u32 line) {
     fprintf(stderr, "Error On line: %ld\n", t.line + 1);
     fprintf(stderr, "Parser Line: %d\n", line);
     fprintf(stderr, "Expected Token: %s, Got %s\n", GetTokenTypeName(expected), GetTokenName(p->t.s, t));
     exit(-1);
 }
 
-#define ThrowError(p, t, e) \
-    _ThrowError(p, t, e, __LINE__)
+static void _SymbolThrowError(ParserState* p, Token t, u32 line) {
+    fprintf(stderr, "Error On line: %ld\n", t.line + 1);
+    fprintf(stderr, "Parser Line: %d\n", line);
+    fprintf(stderr, "Invalid Reference: %s\n", GetTokenName(p->t.s, t));
+    exit(-1);
+}
+
+#define TokenThrowError(p, t, e) \
+    _TokenThrowError(p, t, e, __LINE__)
+
+#define SymbolThrowError(p, t) \
+    _SymbolThrowError(p, t, __LINE__)
 
 static void _RequireToken(ParserState* p, TokenType type, u32 line) {
     if (p->curr_token.t != type) {
-        _ThrowError(p, p->curr_token, type, line);
+        _TokenThrowError(p, p->curr_token, type, line);
     }
     p->curr_token = EatToken(&p->t);
 }
@@ -116,11 +127,23 @@ void ParseStatement(ParserState* p) {
 void ParseDeclaration(ParserState* p) {
     p->curr_token = EatToken(&p->t); //process type
     printf("Newvar: %s\n", GetTokenName(p->t.s, p->curr_token));
+
+
+    if (PushSymbol(p->s, p->curr_token.val.i, (SymbolEntry){}) < 0) {
+        SymbolThrowError(p, p->curr_token);
+    }
+
     RequireToken(p, TOKEN_ID);
     RequireToken(p, ';');
 }
 
 void ParseAssignment(ParserState* p) {
+    SymbolEntry* e = GetSymbol(p->s, p->curr_token.val.i);
+
+    if (!e) {
+        SymbolThrowError(p, p->curr_token);
+    }
+
     p->curr_token = EatToken(&p->t); //process id
     RequireToken(p, '=');
     ParseExpr(p);
@@ -168,7 +191,7 @@ void ParseUnit(ParserState* p) {
         };
         default:
         {
-            ThrowError(p, p->curr_token, TOKEN_ID);
+            TokenThrowError(p, p->curr_token, TOKEN_ID);
         };
     }
 }
@@ -186,9 +209,11 @@ void ParseIf(ParserState* p) {
 
 void ParseBlock(ParserState* p) {
     if (p->curr_token.t == '{') {
+        PushScope(p->s);
         p->curr_token = EatToken(&p->t);
         Parse(p);
         RequireToken(p, '}');
+        PopScope(p->s);
         return;
     }
 
