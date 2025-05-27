@@ -18,6 +18,10 @@ void ASTPushNode(AST* a, ASTNode n) {
 }
 
 static const char* ASTNames[] = {
+    "BASE", //Should never be used
+
+    "IF_ELSE",
+
     "ADD",
     "SUB",
     "MUL",
@@ -37,7 +41,7 @@ static const char* ASTNames[] = {
 
 
 const char* ASTGetName(ASTNodeType t) {
-    return ASTNames[t - AST_ADD];
+    return ASTNames[t - AST_BASE];
 }
 
 void PrintAST(AST* a, StringStore* s) {

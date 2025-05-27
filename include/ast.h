@@ -13,7 +13,20 @@ typedef enum ASTLogicalType {
 
 //Used to determine how many
 //Children
+//
+//One AST Per function
+//
+//I decided not to put variable declarations into
+//the AST yet. Basically the plan is to fill a variable
+//table for each function, then put all declarations first,
+//followed by the code blocks which make up each function.
 typedef enum ASTNodeType {
+    AST_BASE = 0,
+
+    //trinary ops
+    AST_IF_ELSE,
+
+
     //Binary ops
     AST_ADD,
     AST_SUB,

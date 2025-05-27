@@ -294,6 +294,7 @@ void ParseUnit(ParserState* p) {
 
 
 void ParseIf(ParserState* p) {
+    ASTNode n = (ASTNode){.t = AST_IF_ELSE};
     RequireToken(p, TOKEN_IF);
     RequireToken(p, '(');
     ParseExpr(p);
@@ -301,6 +302,7 @@ void ParseIf(ParserState* p) {
     ParseBlock(p);
     RequireToken(p, TOKEN_ELSE);
     ParseBlock(p);
+    ASTPushNode(p->a, n);
 }
 
 void ParseBlock(ParserState* p) {
