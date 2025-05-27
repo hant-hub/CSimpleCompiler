@@ -1,7 +1,8 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
 
-#include "stringstore.h"
+#include <stringstore.h>
+#include <ast.h>
 #include <util.h>
 
 /*
@@ -24,6 +25,7 @@ typedef enum SymbolType {
 //indicies
 typedef struct SymbolEntry {
     SymbolType type;
+    ASTLogicalType l;
     u64 idx;
 } SymbolEntry;
 
@@ -62,5 +64,8 @@ void PushScope(SymbolTable* s);
 void PopScope(SymbolTable* s);
 i64 PushSymbol(SymbolTable* s, u64 key, SymbolEntry e);
 SymbolEntry* GetSymbol(SymbolTable* s, u64 key);
+
+
+void PrintTable(SymbolTable* s);
 
 #endif

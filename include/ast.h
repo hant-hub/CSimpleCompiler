@@ -2,10 +2,11 @@
 #define AST_H
 
 #include <util.h>
+#include <stringstore.h>
 
 //Programmer facing type system
 typedef enum ASTLogicalType {
-    AST_L_UNDEFINED, //used before type inference
+    AST_L_UNDEFINED = 0, //used before type inference
     AST_L_FLOAT,
     AST_L_INT,
 } ASTLogicalType;
@@ -19,7 +20,9 @@ typedef enum ASTNodeType {
     AST_MUL,
     AST_DIV,
     AST_LT,
+    AST_GT,
     AST_EQ,
+    AST_ASSIGN,
 
     //Unary ops
     AST_INT_TO_FLOAT,
@@ -60,5 +63,8 @@ typedef struct AST {
     u32 cap;
 } AST;
 
+void ASTPushNode(AST* a, ASTNode n);
+
+void PrintAST(AST* a, StringStore* s);
 
 #endif

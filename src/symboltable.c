@@ -153,3 +153,14 @@ SymbolEntry* GetSymbol(SymbolTable* s, u64 key) {
     }
     return NULL;
 }
+
+void PrintTable(SymbolTable* s) {
+    printf("SymbolTable:\n");
+    for (u32 i = 0; i < s->tables[0].cap; i++) {
+        if (s->tables[0].keys[i] != -1) {
+            printf("\t%s\n", GetString(s->s, s->tables[0].keys[i]));
+        } else {
+            printf("\tEmpty\n");
+        }
+    }
+}
