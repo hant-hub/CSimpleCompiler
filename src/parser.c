@@ -332,5 +332,8 @@ void ParseFor(ParserState* p) {
     RequireToken(p, ')');
 
     ParseBlock(p);
+
+    ASTPushNode(p->a, (ASTNode) {.t = AST_FOR});
+
 }
 

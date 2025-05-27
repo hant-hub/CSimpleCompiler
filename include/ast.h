@@ -23,6 +23,9 @@ typedef enum ASTLogicalType {
 typedef enum ASTNodeType {
     AST_BASE = 0,
 
+    //Quad ops
+    AST_FOR,
+
     //trinary ops
     AST_IF_ELSE,
 

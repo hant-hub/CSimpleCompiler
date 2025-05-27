@@ -20,8 +20,13 @@ void ASTPushNode(AST* a, ASTNode n) {
 static const char* ASTNames[] = {
     "BASE", //Should never be used
 
+    //Quad
+    "FOR",
+
+    //Trinary
     "IF_ELSE",
 
+    //Binary
     "ADD",
     "SUB",
     "MUL",
@@ -31,9 +36,11 @@ static const char* ASTNames[] = {
     "EQ",
     "ASSIGN",
 
+    //Unary
     "I2F",
     "F2I",
 
+    //Leaf
     "FLOAT CONST",
     "INT CONST",
     "VAR",
@@ -43,6 +50,13 @@ static const char* ASTNames[] = {
 const char* ASTGetName(ASTNodeType t) {
     return ASTNames[t - AST_BASE];
 }
+
+
+typedef struct ASTNodePair {
+    ASTNode n;
+    u32 level;
+} ASTNodePair;
+
 
 void PrintAST(AST* a, StringStore* s) {
     printf("AST:\n");
