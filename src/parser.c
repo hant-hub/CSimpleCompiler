@@ -72,17 +72,17 @@ void ParseBlock(ParserState* p);
 void ParseFor(ParserState* p);
 
 
-void Parse(ParserState* p) {
+u32 Parse(ParserState* p, u32 num) {
     if (p->curr_token.t == TOKEN_INVALID)
         p->curr_token = EatToken(&p->t);
 
-    if (p->curr_token.t == '}') return;
+    if (p->curr_token.t == '}') return num;
     if (p->curr_token.t != TOKEN_EOF){
         ParseStatement(p);
-        Parse(p);
+        num = Parse(p, num + 1);
     }
 
-    return;
+    return num;
 }
 
 
@@ -156,12 +156,13 @@ void ParseAssignment(ParserState* p) {
     if (!e) {
         SymbolThrowError(p, p->curr_token);
     }
-    var.data.i = p->curr_token.val.i;
-    ASTPushNode(p->a, var);
 
     p->curr_token = EatToken(&p->t); //process id
     RequireToken(p, '=');
     ParseExpr(p);
+
+    var.data.i = p->curr_token.val.i;
+    ASTPushNode(p->a, var);
 
     ASTNode a = {.t = AST_ASSIGN};
     ASTPushNode(p->a, a);
@@ -309,7 +310,15 @@ void ParseBlock(ParserState* p) {
     if (p->curr_token.t == '{') {
         PushScope(p->s);
         p->curr_token = EatToken(&p->t);
-        Parse(p);
+        u32 num = Parse(p, 0);
+
+        ASTNode n = (ASTNode) {
+            .t = AST_BLOCK,
+            .data.i = num,
+        };
+
+        ASTPushNode(p->a, n);
+
         RequireToken(p, '}');
         PopScope(p->s);
         return;

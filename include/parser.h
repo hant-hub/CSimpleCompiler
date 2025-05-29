@@ -12,7 +12,7 @@ typedef struct ParserState {
     SymbolTable* s; //TODO(ELI): Implement declartions
 } ParserState;
 
-void Parse(ParserState* p);
+u32 Parse(ParserState* p, u32 num);
 
 
 

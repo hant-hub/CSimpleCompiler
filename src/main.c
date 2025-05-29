@@ -33,7 +33,7 @@ int main() {
         .a = &a,
     };
     
-    Parse(&p);
+    Parse(&p, 0);
 
     //Debug
     PrintTable(&h);

@@ -23,12 +23,14 @@ typedef enum ASTLogicalType {
 typedef enum ASTNodeType {
     AST_BASE = 0,
 
+    //Variable
+    AST_BLOCK,
+
     //Quad ops
     AST_FOR,
 
     //trinary ops
     AST_IF_ELSE,
-
 
     //Binary ops
     AST_ADD,
