@@ -9,7 +9,8 @@ typedef struct ParserState {
     Token curr_token;
 
     AST* a;
-    SymbolTable* s; //TODO(ELI): Implement declartions
+    SymbolTable* s;
+    VariableTable* v;
 } ParserState;
 
 u32 Parse(ParserState* p, u32 num);

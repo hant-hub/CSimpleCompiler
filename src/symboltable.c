@@ -164,3 +164,36 @@ void PrintTable(SymbolTable* s) {
         }
     }
 }
+
+//Type Table ---------------------------------------------
+
+
+
+
+
+//Variables ----------------------------------------------
+
+u64 VariablePushEntry(VariableTable* t, u64 str, u64 typ) {
+    if (t->size + 1 > t->cap) {
+        u64 oldsize = t->cap;
+        t->cap = t->cap ? t->cap * 2 : 2;
+
+        t->str = t->m.a(oldsize * sizeof(u64), t->cap * sizeof(u64), t->str, t->m.ctx);
+        t->typ = t->m.a(oldsize * sizeof(u64), t->cap * sizeof(u64), t->typ, t->m.ctx);
+    }
+
+    t->str[t->size] = str;
+    t->typ[t->size] = typ;
+    return t->size++;
+}
+
+void VariablePrint(VariableTable* v, StringStore* s) {
+    printf("Variable Table\n");
+   for (u64 i = 0; i < v->size; i++) {
+       printf("\t%s %ld\n", GetString(s, v->str[i]), v->typ[i]);
+   }
+}
+
+
+
+

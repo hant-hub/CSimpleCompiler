@@ -68,4 +68,32 @@ SymbolEntry* GetSymbol(SymbolTable* s, u64 key);
 
 void PrintTable(SymbolTable* s);
 
+/*
+ * Specific Tables
+ *
+ */
+
+//Type Table -------------------------------
+typedef struct TypeTable {
+    Allocator m;
+    //Later
+} TypeTable;
+
+
+// Variables -------------------------------
+// More useful when structs and unions and typedefs
+// are added
+typedef struct VariableTable {
+    Allocator m;
+
+    u64* str;
+    u64* typ; // index into type table
+    u64 size;
+    u64 cap;
+} VariableTable;
+
+u64 VariablePushEntry(VariableTable* t, u64 str, u64 typ);
+void VariablePrint(VariableTable* v, StringStore* s);
+
+
 #endif

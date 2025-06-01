@@ -1,4 +1,5 @@
 #include "stringstore.h"
+#include "util.h"
 #include <ast.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,35 +20,35 @@ void ASTPushNode(AST* a, ASTNode n) {
 }
 
 static const char* ASTNames[] = {
-    "BASE", //Should never be used
+    "BASE  ", //Should never be used
 
     //variabel
-    "BLOCK",
+    "BLOCK ",
 
     //Quad
-    "FOR",
+    "FOR   ",
 
     //Trinary
     "IF_ELSE",
 
     //Binary
-    "ADD",
-    "SUB",
-    "MUL",
-    "DIV",
-    "LT",
-    "GT",
-    "EQ",
+    "ADD   ",
+    "SUB   ",
+    "MUL   ",
+    "DIV   ",
+    "LT    ",
+    "GT    ",
+    "EQ    ",
     "ASSIGN",
 
     //Unary
-    "I2F",
-    "F2I",
+    "I2F   ",
+    "F2I   ",
 
     //Leaf
-    "FLOAT",
-    "INT",
-    "VAR",
+    "FLOAT ",
+    "INT   ",
+    "VAR   ",
 };
 
 
@@ -210,10 +211,137 @@ void PrintAST(AST* a, StringStore* s) {
 
     for (u32 i = 0; i < a->size; i++) {
         PrintTabs(levels[i]);
-        printf("%s\n", ASTGetName(a->nodes[i].t));
+        switch (a->nodes[i].t) {
+            case AST_VAR:
+            {
+                printf("VAR %s %d\n", GetString(s, a->nodes[i].data.i), a->nodes[i].l);
+            } break;
+            default:
+            {
+                printf("%s\n", ASTGetName(a->nodes[i].t));
+            } break;
+        }
     }
 
 
     free(levels);
     free(stack.stack);
+}
+
+
+//Just gonna make it the same size as the AST
+typedef struct ASTType {
+    u32 idx;
+    ASTLogicalType type;
+} ASTType;
+
+typedef struct ASTStack {
+    ASTType* t;
+    u32 size;
+} ASTStack;
+
+static void PushStack(ASTStack* s, u32 idx, ASTLogicalType t) {
+    s->t[s->size++] = (ASTType) {
+        .idx = idx,
+        .type = t
+    };
+}
+
+static ASTType PopStack(ASTStack* s) {
+    return s->t[--s->size];
+}
+
+void ASTInferTypes(AST* a) {
+    AST correct = {
+        .m = a->m,
+    };
+
+    ASTStack* s = &(ASTStack){
+        .t = calloc(sizeof(ASTType), a->size),
+    };
+
+    ASTLogicalType* conv = calloc(sizeof(ASTLogicalType), a->size);
+
+    for (u32 i = 0; i < a->size; i++) {
+        switch (a->nodes[i].t) {
+
+            //Don't care
+            case AST_BLOCK:
+            case AST_FOR:
+            case AST_IF_ELSE:
+                break;
+
+            case AST_ASSIGN:
+            {
+                ASTType c2 = PopStack(s);
+                ASTType c1 = PopStack(s);
+
+                if (c2.type != c1.type) {
+                    //Always insert a conversion on the rhs rather than the lhs
+                    printf("hit, %s %s %d\n", ASTGetName(a->nodes[c1.idx].t), ASTGetName(a->nodes[c2.idx].t), a->nodes[c2.idx].l);
+                    conv[c1.idx] = c1.type;
+                }
+
+                a->nodes[i].l = c2.type;
+                PushStack(s, i, c2.type);
+            } break;
+
+            //binary
+            case AST_SUB:
+            case AST_MUL:
+            case AST_DIV:
+            case AST_LT:
+            case AST_GT:
+            case AST_EQ:
+            case AST_ADD:
+            {
+                ASTType c2 = PopStack(s);
+                ASTType c1 = PopStack(s);
+
+                a->nodes[i].l = c2.type;
+                if (c2.type != c1.type) {
+                    if (c1.type == AST_L_INT) {
+                        conv[c1.idx] = c1.type;
+                    } else if (c2.type == AST_L_INT) {
+                        conv[c2.idx] = c2.type;
+                        a->nodes[i].l = c1.type;
+                    }
+                }
+
+                PushStack(s, i, a->nodes[i].l);
+            } break;
+
+
+            //Unary
+            case AST_BASE:
+            case AST_FLOAT_TO_INT:
+            case AST_INT_TO_FLOAT:
+            {
+                printf("How did we get here??\n");
+            } break;
+
+            case AST_VAR:
+            case AST_INT_CONST:
+            case AST_FLOAT_CONST:
+            {
+                //printf("%s %d\n", ASTGetName(a->nodes[i].t), a->nodes[i].l);
+                PushStack(s, i, a->nodes[i].l);
+            } break;
+        }
+    }
+
+    for (u32 i = 0; i < a->size; i++) {
+        ASTPushNode(&correct, a->nodes[i]);
+        if (conv[i] == AST_L_INT) {
+            ASTPushNode(&correct, (ASTNode){.t = AST_INT_TO_FLOAT, .l = AST_L_FLOAT});
+        } else if (conv[i] == AST_L_FLOAT) {
+            ASTPushNode(&correct, (ASTNode){.t = AST_FLOAT_TO_INT, .l = AST_L_INT});
+        }
+    }
+
+
+    a->m.a(a->cap * sizeof(ASTType), 0, a->nodes, a->m.ctx);
+    free(s->t);
+    free(conv);
+    *a = correct;
 }

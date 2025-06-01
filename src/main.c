@@ -18,6 +18,10 @@ int main() {
         .m = GlobalAllocator,
     };
 
+    VariableTable v = (VariableTable) {
+        .m = GlobalAllocator,
+    };
+
     AST a = (AST) {
         .m = GlobalAllocator,
     };
@@ -31,6 +35,7 @@ int main() {
         .t = t,
         .s = &h,
         .a = &a,
+        .v = &v,
     };
     
     Parse(&p, 0);
@@ -38,6 +43,9 @@ int main() {
     //Debug
     PrintTable(&h);
     PrintAST(&a, &s);
+    ASTInferTypes(&a);
+    PrintAST(&a, &s);
+    VariablePrint(&v, &s);
 
     TokenUnloadFile(&t);
 

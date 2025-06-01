@@ -1,5 +1,4 @@
 #include "ast.h"
-#include "stringstore.h"
 #include "symboltable.h"
 #include "tokenizer.h"
 #include <parser.h>
@@ -131,19 +130,29 @@ void ParseDeclaration(ParserState* p) {
         .type = SYMBOL_IDENTIFIER,
     };
 
+    u64 type = 0;
+
     if (p->curr_token.t == TOKEN_INT) {
         e.l = AST_L_INT;
+        type = 0;
     } else {
         e.l = AST_L_FLOAT;
+        type = 1;
     }
 
     p->curr_token = EatToken(&p->t); //process type
     printf("Newvar: %s\n", GetTokenName(p->t.s, p->curr_token));
 
 
-    if (PushSymbol(p->s, p->curr_token.val.i, e) < 0) {
+    u64 idx;
+    if ((idx = PushSymbol(p->s, p->curr_token.val.i, e)) < 0) {
         SymbolThrowError(p, p->curr_token);
     }
+
+
+    SymbolEntry* d = &p->s->tables[p->s->size - 1].values[idx];
+    d->idx = p->curr_token.val.i;
+    //d->idx = VariablePushEntry(p->v, p->curr_token.val.i, type);
 
     RequireToken(p, TOKEN_ID);
     RequireToken(p, ';');
@@ -157,16 +166,17 @@ void ParseAssignment(ParserState* p) {
         SymbolThrowError(p, p->curr_token);
     }
 
+    var.data.i = p->curr_token.val.i;
+    var.l = e->l;
+
     p->curr_token = EatToken(&p->t); //process id
     RequireToken(p, '=');
     ParseExpr(p);
 
-    var.data.i = p->curr_token.val.i;
-    ASTPushNode(p->a, var);
 
+    ASTPushNode(p->a, var);
     ASTNode a = {.t = AST_ASSIGN};
     ASTPushNode(p->a, a);
-
 
 }
 

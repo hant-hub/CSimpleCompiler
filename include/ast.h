@@ -7,8 +7,8 @@
 //Programmer facing type system
 typedef enum ASTLogicalType {
     AST_L_UNDEFINED = 0, //used before type inference
-    AST_L_FLOAT,
     AST_L_INT,
+    AST_L_FLOAT,
 } ASTLogicalType;
 
 //Used to determine how many
@@ -82,6 +82,7 @@ typedef struct AST {
 } AST;
 
 void ASTPushNode(AST* a, ASTNode n);
+void ASTInferTypes(AST* a);
 
 void PrintAST(AST* a, StringStore* s);
 
