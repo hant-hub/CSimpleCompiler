@@ -1,61 +1,55 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
-#include "stringstore.h"
-#include <symboltable.h>
-#include <util.h>
+#include "util.h"
 
+typedef enum TokenType : u32 {
+    //literals
+    
+    //Generic stuff
+    TOKEN_ID = 128,
+    TOKEN_CONSTF,
+    TOKEN_CONSTI,
 
-typedef enum TokenType {
-    TOKEN_INVALID = 0, //NULL
-    TOKEN_ID = 128, //room for literals
-
+    //Keywords
     TOKEN_INT,
     TOKEN_FLOAT,
     TOKEN_IF,
-    TOKEN_ELSE,
     TOKEN_FOR,
 
-    TOKEN_NUM_INT,
-    TOKEN_NUM_FLOAT,
-
+    //Multi Character Operators
     TOKEN_EQ,
+    TOKEN_NEQ,
+    TOKEN_LEQ,
+    TOKEN_GEQ,
 
+    //Special
     TOKEN_EOF,
 } TokenType;
 
-
-typedef struct Token {
-    TokenType t;
-    u64 line;
-
-    //Index for ids,
-    //Raw value for nums
-
-    union {
-        u64 i; //ID and Num
-        f64 f; //Num
-    } val;
-
-} Token;
-
 typedef struct Tokenizer {
-    StringStore* s;
-
-    char* buffer;
+    Allocator a;
+    u8* data;
+    u8* At;
     u64 size;
-
-    char* At;
-    u64 line;
 } Tokenizer;
 
+typedef struct Token {
+    TokenType type;
+    String string; //temporary 
+} Token;
 
-Tokenizer TokenLoadFile(char* file, StringStore* s);
-void TokenUnloadFile(Tokenizer* t);
+Tokenizer LoadFile(const char* str);
+void FreeFile(Tokenizer* t);
 
-Token EatToken(Tokenizer* t);
+//Create Offset Version with circular buffer
+Token GetToken(Tokenizer* t);
 
-const char* GetTokenTypeName(TokenType t);
-const char* GetTokenName(StringStore* s, Token t);
+
+
+
+
+
+
 
 #endif

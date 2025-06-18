@@ -15,13 +15,9 @@ int main(int argc, char* argv[]) {
             sb_add_flag("g");
 
             sb_add_file("src/main.c");
+            sb_add_file("src/debug.c");
             sb_add_file("src/util.c");
-            sb_add_file("src/symboltable.c");
             sb_add_file("src/tokenizer.c");
-            sb_add_file("src/stringstore.c");
-            sb_add_file("src/parser.c");
-            sb_add_file("src/ast.c");
-
             sb_export_command();
         }
         sb_fence();
